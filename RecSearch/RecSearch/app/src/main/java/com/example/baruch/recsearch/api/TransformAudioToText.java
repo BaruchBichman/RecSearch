@@ -39,6 +39,9 @@ public class TransformAudioToText {
                             .build();
                     SpeechRecognitionResults transcript = speechService.recognize(options).execute();
                     Log.d("TAG",transcript.toString());
+                    Searcher s = new Searcher();
+                    s.init();
+                    s.index(transcript.toString());
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
