@@ -2,15 +2,20 @@ package com.example.baruch.recsearch;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.baruch.recsearch.api.TransformAudioToText;
+
+import java.io.File;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -20,9 +25,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         isStoragePermissionGranted();
+        Intent intent = new Intent(this, RecordingService.class);
+        intent.putExtra(TransformAudioToText.FILE_NAME_KEY,
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + File.separator + "audio-file.flac");
+        startService(intent);
     }
 
     private void initAudioList() {
