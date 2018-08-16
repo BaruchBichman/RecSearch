@@ -17,11 +17,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 public class TransformAudioToText {
-    private Context context;
-    private SpeechToText speechService;
 
-    public TransformAudioToText(Context context){
-        this.context = context;
+    private SpeechToText speechService;
+    public static final String FILE_NAME_KEY = "audio_file_name";
+    public TransformAudioToText(){
+
         speechService = initSpeechToTextService();
     }
 
@@ -48,11 +48,7 @@ public class TransformAudioToText {
         thread.start();
     }
     private SpeechToText initSpeechToTextService() {
-        SpeechToText service = new SpeechToText();
-        String username = context.getString(R.string.speech_text_username);
-        String password = context.getString(R.string.speech_text_password);
-        service.setUsernameAndPassword(username, password);
-        service.setEndPoint(context.getString(R.string.speech_text_url));
+        SpeechToText service = new SpeechToText();;
         return service;
     }
 }
