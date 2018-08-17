@@ -3,29 +3,33 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="?android:attr/colorBackground"
     android:orientation="vertical">
 
-    <Button
-        android:id="@+id/playAudioButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Play" />
+    <TextView
+        android:id="@+id/fileNameTextView"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:text="fileName" />
 
     <TextView
         android:id="@+id/dateTextView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="30dp"
         android:text="Date" />
 
     <TextView
         android:id="@+id/numberOfTimestextView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="NumberOfTimes" />
+        android:layout_height="30dp"
+        android:text="Number of times" />
 
-    <TextView
-        android:id="@+id/fileNameTextView"
+    <Button
+        android:id="@+id/playAudioButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="fileName" />
+        android:shadowRadius="40"
+        android:text="Play"
+        android:textSize="24sp"
+        android:textStyle="bold" />
 </LinearLayout>
