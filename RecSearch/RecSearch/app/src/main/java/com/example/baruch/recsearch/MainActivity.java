@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.example.baruch.recsearch.api.TransformAudioToText;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
@@ -36,6 +37,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        audioList = new ArrayList<>();
+        results = new SearchResults();
         findViews();
         isStoragePermissionGranted();
         Intent intent = new Intent(this, RecordingService.class);
@@ -54,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void initAudioList(final String word) {
 
+
         new AsyncTask<Void, Void, List<AudioFile>>() {
             @Override
             protected void onPreExecute() {
@@ -62,7 +66,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             protected List<AudioFile> doInBackground(Void... params) {
-                return results.getResultList(word);
+                List<AudioFile> lst=results.getResultList(word);
+                return lst;
             }
 
             @Override
@@ -89,6 +94,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 TextView numberOfTimesTextView = (TextView) convertView.findViewById(R.id.numberOfTimestextView);
                 TextView fileNameTextView = (TextView) convertView.findViewById(R.id.fileNameTextView);
 
+                dateTextView.setText(audioList.get(position).date);
+                numberOfTimesTextView.setText(audioList.get(position).result.get(0).time);
+                fileNameTextView.setText(audioList.get(position).name);
 
                 return convertView;
             }
@@ -123,10 +131,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         if(v == searchButton){
-            if(searchEditText.getText().toString() == "" || searchEditText.getText().toString() == " ")
+            //String jjj = this.searchEditText.getText().toString();
+            //Toast.makeText(this, jjj, Toast.LENGTH_LONG).show();
+            if(this.searchEditText.getText().toString() == "" || this.searchEditText.getText().toString() == " ")
                 Toast.makeText(this, "please enter a word to search", Toast.LENGTH_LONG).show();
             else
-                initAudioList(searchEditText.getText().toString());
+                initAudioList(this.searchEditText.getText().toString());
         }
 
     }
