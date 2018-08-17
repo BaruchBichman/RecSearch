@@ -7,5 +7,6 @@ public class AudioFile {
     public String name;
     public List<TimeWord> result;
     public Date date;
+    public String text;
     
 }

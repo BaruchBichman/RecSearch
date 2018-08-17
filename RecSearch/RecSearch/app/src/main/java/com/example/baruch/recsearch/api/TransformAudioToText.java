@@ -7,11 +7,14 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import com.example.baruch.recsearch.R;
+import com.google.gson.JsonObject;
 import com.ibm.watson.developer_cloud.http.HttpMediaType;
 import com.ibm.watson.developer_cloud.http.ServiceCall;
 import com.ibm.watson.developer_cloud.speech_to_text.v1.SpeechToText;
 import com.ibm.watson.developer_cloud.speech_to_text.v1.model.RecognizeOptions;
 import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeechRecognitionResults;
+
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -33,16 +36,22 @@ public class TransformAudioToText {
 
                 RecognizeOptions options = null;
                 try {
+
                     options = new RecognizeOptions.Builder()
                             .audio(file)
                             .contentType(HttpMediaType.AUDIO_FLAC).timestamps(true)
                             .build();
                     SpeechRecognitionResults transcript = speechService.recognize(options).execute();
-                    Log.d("TAG",transcript.toString());
+                    JSONObject jsonObj = new JSONObject(transcript.toString());
+                    String transStr = jsonObj.getJSONArray("results").getJSONObject(0)
+                            .getJSONArray("alternatives").getJSONObject(0).getString("transcript");
+                    JSONObject jsonObjectRes = new JSONObject();
+                    jsonObjectRes.put("transcript",transStr);
+                    jsonObjectRes.put("file",file.toString());
                     Searcher s = new Searcher();
                     s.init();
-                    s.index(transcript.toString());
-                } catch (FileNotFoundException e) {
+                    s.index(jsonObjectRes.toString(), file.toString());
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 
