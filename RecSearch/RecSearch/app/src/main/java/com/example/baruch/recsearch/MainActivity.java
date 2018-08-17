@@ -36,11 +36,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        findViews();
         isStoragePermissionGranted();
         Intent intent = new Intent(this, RecordingService.class);
         intent.putExtra(TransformAudioToText.FILE_NAME_KEY,
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + File.separator + "audio-file.flac");
         startService(intent);
+    }
+
+    private void findViews(){
+        searchButton = (ImageButton)findViewById( R.id.searchButton );
+        searchEditText = (EditText)findViewById(R.id.searchEditText);
+        AudioListView = (ListView) findViewById(R.id.resultListView);
+
+        searchButton.setOnClickListener(this);
     }
 
     private void initAudioList(final String word) {
@@ -113,6 +122,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
+        if(v == searchButton){
+            if(searchEditText.getText().toString() == "" || searchEditText.getText().toString() == " ")
+                Toast.makeText(this, "please enter a word to search", Toast.LENGTH_LONG).show();
+            else
+                initAudioList(searchEditText.getText().toString());
+        }
 
     }
 }
