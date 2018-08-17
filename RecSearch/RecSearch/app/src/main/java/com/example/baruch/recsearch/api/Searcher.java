@@ -38,6 +38,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class Searcher {
@@ -224,14 +225,18 @@ public class Searcher {
     }
 
     public SearchResults perfolrmSearch(String searchTerm) {
+        Discovery discovery = new Discovery("2017-11-07");
+        discovery.setEndPoint("https://gateway.watsonplatform.net/discovery/api");
+        discovery.setUsernameAndPassword("21b9e719-2b0c-4758-85e4-3b5b2b90cee1", "Mqsez5Qb3hUx");
         SearchResults searchResults = new SearchResults();
         List<AudioFile> audioFileList = new ArrayList<>();
         searchResults.resultList = audioFileList;
         try {
 
+            HashSet<String> set = new HashSet<String>();
             QueryOptions.Builder queryBuilder = new QueryOptions.Builder("49aa886a-fb51-4002-a537-4b51fe65012a",
                     "44b9e87f-06e4-482b-96af-7f8598d262ba");
-            queryBuilder.query("several");
+            queryBuilder.query(searchTerm);
             QueryResponse queryResponse = discovery.query(queryBuilder.build()).execute();
             JSONObject jsonObject = new JSONObject(queryResponse.toString());
 
@@ -240,7 +245,12 @@ public class Searcher {
             for (int i = 0; i < josnArray.length(); i++) {
                 JSONObject obj = josnArray.getJSONObject(i);
                 if (obj.has("file")) {
+
                     String file = obj.getString("file");
+                    if(set.contains(file)){
+                        continue;
+                    }
+                    set.add(file);
                     AudioFile audioFile = new AudioFile();
                     audioFile.name = file;
                     if (obj.has("transcript")) {
