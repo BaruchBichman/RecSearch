@@ -1,42 +1,60 @@
 package com.example.baruch.recsearch;
 
 import android.Manifest;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.baruch.recsearch.api.AudioFromDevice;
 import com.example.baruch.recsearch.api.TransformAudioToText;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private EditText searchEditText;
     private ImageButton searchButton;
+    private Button uploadButton;
     List<AudioFile> audioList;
     ListView AudioListView;
     SearchResults results;
+    List<String> files = new ArrayList<>();
+    MediaPlayer mp;
+    private int SELECT_AUDIO;
+    private ArrayList<AudioFromDevice> arrayList;
+    private static final String MEDIA_PATH = new String(Environment.getExternalStorageDirectory().toString() + "/AudioRecorder/");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        mp = new MediaPlayer();
         setContentView(R.layout.activity_main);
+        arrayList = new ArrayList<AudioFromDevice>();
         audioList = new ArrayList<>();
         results = new SearchResults();
         findViews();
@@ -45,14 +63,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         intent.putExtra(TransformAudioToText.FILE_NAME_KEY,
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + File.separator + "audio-file.flac");
         startService(intent);
+
     }
 
     private void findViews(){
         searchButton = (ImageButton)findViewById( R.id.searchButton );
+        uploadButton = (Button)findViewById(R.id.uploadButton);
         searchEditText = (EditText)findViewById(R.id.searchEditText);
         AudioListView = (ListView) findViewById(R.id.resultListView);
 
         searchButton.setOnClickListener(this);
+        uploadButton.setOnClickListener(this);
     }
 
     private void initAudioList(final String word) {
@@ -73,10 +94,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             protected void onPostExecute(List<AudioFile> audios) {
                 audioList = audios;
-                if (audios != null) {
+                if (audios.size()!=0) {
                     setAudiosListView();
                 }
                 else {
+                    setAudiosListView();
                     Toast.makeText(MainActivity.this, "there are no Audio to show", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -95,13 +117,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 TextView fileNameTextView = (TextView) convertView.findViewById(R.id.fileNameTextView);
 
                 dateTextView.setText(audioList.get(position).date);
-                numberOfTimesTextView.setText(audioList.get(position).result.get(0).time);
+                numberOfTimesTextView.setText(audioList.get(position).text);
+               // numberOfTimesTextView.setText(audioList.get(position).result.get(0).time);
                 fileNameTextView.setText(audioList.get(position).name);
+                final String name =audioList.get(position).name;
+                convertView.setOnClickListener(new View.OnClickListener() {
 
+                    @Override
+                    public void onClick(View v) {
+                        playSong(name);
+                    }
+
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                    }
+                });
                 return convertView;
             }
         };
         AudioListView.setAdapter(adapter);
+
+    }
+
+    private void playSong(String songPath) {
+        try {
+            if(mp.isPlaying()){
+                mp.stop();
+            }else{
+                mp.reset();
+                mp.setDataSource(songPath);
+                mp.prepare();
+                mp.start();
+            }
+
+
+        } catch (IOException e) {
+            Log.v(getString(R.string.app_name), e.getMessage());
+        }
     }
 
     public boolean isStoragePermissionGranted() {
@@ -131,13 +183,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         if(v == searchButton){
-            //String jjj = this.searchEditText.getText().toString();
-            //Toast.makeText(this, jjj, Toast.LENGTH_LONG).show();
+
             if(this.searchEditText.getText().toString() == "" || this.searchEditText.getText().toString() == " ")
                 Toast.makeText(this, "please enter a word to search", Toast.LENGTH_LONG).show();
             else
                 initAudioList(this.searchEditText.getText().toString());
         }
+        if(v==uploadButton) {
+            final Intent intent = new Intent();
+            intent.setType("audio/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(
+                    Intent.createChooser(intent, "Select Audio"), SELECT_AUDIO
+            );
+        }
+
+
 
     }
+
 }
